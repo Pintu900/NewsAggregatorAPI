@@ -7,9 +7,9 @@ var register = (req,res) => {
         fullName: req.body.fullName,
         email: req.body.email,
         role: req.body.role,
-        password: bcrypt.hashSync(req.body.password,bcrypt.genSalt(8)),
+        password: bcrypt.hashSync(req.body.password,8),
+        preferences: req.body.preferences
     });
-
     user.save().then(data => {
         res.status(201).json({ message: 'User registered successfully' });
     }).catch(err => {
@@ -18,9 +18,8 @@ var register = (req,res) => {
 }
 
 var login = (req,res)=>{
-    User.findOne({
-        email: req.email
-    }).then(user => {
+    User.findOne({ email: req.body.email}).then(user => {
+        console.log(user)
         if(!user){
             return res.status(404).json({message: "User Not Found"});
         }
@@ -58,4 +57,26 @@ var login = (req,res)=>{
     });
 }
 
-module.exports = {register,login};
+const getPreferences = (req,res)=>{
+    if(req.user === undefined){
+        res.status(401).json({ message: 'Unauthorized Check if you are logged in' });
+    }
+    res.status(200).json({
+        fullName: req.user.fullName,
+        preferences: req.user.preferences
+    })
+}
+
+const updatePreferences = async (req,res) =>{
+    if(req.user === undefined){
+        res.status(401).json({ message: 'Unauthorized Check if you are logged in' });
+    }
+    const user =  await User.findByIdAndUpdate(req.user._id,{preferences: req.body.preferences}, {new : true});
+    if(!user) return res.status(404).send('The user with the given id is not found.');
+
+    delete user.password;
+
+  res.status(200).send(user);
+}
+
+module.exports = {register,login,getPreferences,updatePreferences};

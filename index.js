@@ -2,8 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const routes = express.Router();
 const mongoose = require("mongoose");
-const {register,login} = require("./controllers/authController");
+const {register,login,getPreferences,updatePreferences} = require("./controllers/authController");
 require('dotenv').config();
+const newsinfo = require('./routes/newsinfo');
+const verifyToken = require('./middleware/authJWT');
 
 const PORT = process.env.PORT || 3000;
 
@@ -26,6 +28,11 @@ routes.get('/',(req,res)=>{
 routes.post('/register',register);
 
 routes.post('/login',login);
+
+routes.get('/preferences',verifyToken,getPreferences);
+
+routes.put('/preferences',verifyToken,updatePreferences);
+routes.use(newsinfo);
 
 app.listen(PORT, (error)=>{
     if(!error)

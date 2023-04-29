@@ -31,6 +31,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    preferences:{
+        type: String,
+        required: true
+    },
     created: {
         type: Date,
         default: Date.now
